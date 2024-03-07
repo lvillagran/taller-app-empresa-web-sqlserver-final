@@ -1,0 +1,184 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:o="http://omnifaces.org/ui">
+	<h:head>
+		<title>TEST | Test</title>
+		<style type="text/css">
+.card p {
+	font-style: italic;
+	color: #007bff;
+	font-size: 20px;
+}
+
+
+</style>
+	</h:head>
+
+	<h:body>
+		<h:form>
+			<p:messages showDetail="true" />
+			<div class="card">
+				<p>Bienvenido: #{beanMantenedorLogin.lUsuario}</p>
+
+				<p:menubar>
+					<p:submenu label="Nuevo" icon="pi pi-fw pi-file">
+						<p:submenu label="Nuevo producto" icon="pi pi-fw pi-plus">
+							<p:menuitem value="Crear producto" process="@this"
+								oncomplete="PF('dlFormularioRegistraProducto').show();"
+								update="@form" icon="pi pi-fw pi-file-edit" />
+						</p:submenu>
+					</p:submenu>
+					
+					<br></br>
+					
+					<f:facet name="options">
+						<div class="ui-input-icon-left mr-3">
+							<i class="pi pi-fw pi-search" />
+						</div>
+						<p:commandButton value="Logout"
+							action="#{beanMantenedorLogin.logoutUsuario}"
+							icon="pi pi-fw pi-sign-out" process="@this" />
+					</f:facet>
+				</p:menubar>
+				<br></br>
+			</div>
+
+
+			<p:panel id="idPanelDatos" toggleable="true"
+				header="Productos registrados">
+				<p:dataTable
+					value="#{beanMantenedorProducto.lListadoDatosProductoConsulta}"
+					id="tablaProductos" var="producto"
+					emptyMessage="No existen productos para ese criterio de búsqueda"
+					widgetVar="tablaFacturas" rows="3" reflow="true" paginator="true"
+					paginatorPosition="both" paginatorAlwaysVisible="false"
+					paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+					currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+					rowsPerPageTemplate="3,5,{ShowAll|'All'}">
+
+					<p:column headerText="Cod. Producto" width="8%">
+						<div align="left"></div>
+						<h:outputText value="#{producto.lIdPoducto}" />
+					</p:column>
+
+					<p:column headerText="Producto" width="8%">
+						<div align="left"></div>
+						<h:outputText value="#{producto.lNombre}" />
+					</p:column>
+
+					<p:column headerText="Precio" width="8%">
+						<div align="left"></div>
+						<h:outputText value="#{producto.lPrecio}" />
+					</p:column>
+
+					<p:column headerText="Fecha Registro" width="8%">
+						<div align="left"></div>
+						<h:outputText value="#{producto.lFechaRegistro}" />
+					</p:column>
+
+					<p:column headerText="Acciones" width="10%">
+						<p:panelGrid columns="2" layout="grid"
+							style="border : none; background : none;">
+
+							<p:commandButton title="Actualizar"
+								oncomplete="PF('dlFormularioActualizaProducto').show();"
+								actionListener="#{beanMantenedorProducto.obtenerDatosActualizarProducto}"
+								partialSubmit="true" icon="pi pi-pencil" update="@form">
+								<f:attribute name="ID_PRODUCTO" value="#{producto.lIdPoducto}"></f:attribute>
+								<f:attribute name="PROD_NOMBRE" value="#{producto.lNombre}"></f:attribute>
+								<f:attribute name="PROD_PRECIO" value="#{producto.lPrecio}"></f:attribute>
+							</p:commandButton>
+
+							<p:commandButton title="Eliminar"
+								actionListener="#{beanMantenedorProducto.eliminarProducto}"
+								partialSubmit="true" icon="pi pi-trash" update="@form">
+								<f:attribute name="ID_PRODUCTO_ELIMINAR"
+									value="#{producto.lIdPoducto}"></f:attribute>
+							</p:commandButton>
+						</p:panelGrid>
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+
+
+			<p:dialog id="idPopUpActualizaProducto"
+				widgetVar="dlFormularioActualizaProducto"
+				header="Actualiza producto" width="30%" height="30%" modal="true"
+				resizable="false" minimizable="false" maximizable="false">
+				<p:panelGrid columns="2" id="idPaneGridNuevosDatos">
+					<p:outputLabel value="Id Producto" />
+					<p:outputLabel
+						value="#{beanMantenedorProducto.lIdProductoActualizar}" />
+
+					<p:outputLabel value="Nombre" />
+					<h:inputText value="#{beanMantenedorProducto.lNombreActualizar}" />
+
+					<p:outputLabel value="Precio" />
+					<p:inputNumber value="#{beanMantenedorProducto.lPrecioActualizar}" />
+				</p:panelGrid>
+
+
+				<p:panelGrid columns="4" id="panelControlesActualiza">
+					<p:commandButton value="Actualizar" icon="pi pi-save"
+						actionListener="#{beanMantenedorProducto.actualizarProducto}"
+						update="@form">
+					</p:commandButton>
+
+					<br> </br>
+					<p:commandButton icon="pi pi-times" value="Cancelar"
+						styleClass="RedButton" update="@form">
+					</p:commandButton>
+				</p:panelGrid>
+			</p:dialog>
+
+			<p:dialog id="idPopUpRegistraProducto"
+				widgetVar="dlFormularioRegistraProducto"
+				header="Registro nuevo producto" width="35%" height="30%"
+				modal="true" resizable="false" minimizable="false"
+				maximizable="false">
+				<p:panel id="idPanelProducto" header="Datos producto">
+					<p:panelGrid columns="2" id="idPanelFormulario">
+
+						<p:outputLabel value="Tipo producto" for="txtTipoProdcuto" />
+						<p:selectOneMenu id="txtTipoProdcuto"
+							value="#{beanMantenedorProducto.lIdTipoProducto}"
+							autoWidth="false" styleClass="Wid70" filterMatchMode="contains"
+							multiple="true" filter="true">
+							<f:selectItem itemLabel="LACTEOS" itemValue="1" />
+							<f:selectItem itemLabel="GRAMINEAS" itemValue="2" />
+							<f:selectItem itemLabel="GRASAS" itemValue="3" />
+						</p:selectOneMenu>
+
+						<p:outputLabel value="Nombre" />
+						<h:inputText value="#{beanMantenedorProducto.lNombre}" />
+
+						<p:outputLabel value="Descripcion" />
+						<h:inputText value="#{beanMantenedorProducto.lDescripcion}" />
+
+						<p:outputLabel value="Precio" />
+						<p:inputNumber value="#{beanMantenedorProducto.lPrecio}" />
+					</p:panelGrid>
+					<br></br>
+				</p:panel>
+
+				<p:panelGrid columns="4" id="panelControles">
+					<p:commandButton value="Registrar"
+						actionListener="#{beanMantenedorProducto.registraProducto}"
+						icon="pi pi-save"
+						update="idPanelProducto, idPanelFormulario, tablaProductos, idPopUpRegistraProducto, @form">
+					</p:commandButton>
+
+					<br></br>
+					<p:commandButton icon="pi pi-times" value="Cancelar"
+						styleClass="RedButton" update="@form">
+					</p:commandButton>
+				</p:panelGrid>
+			</p:dialog>
+
+		</h:form>
+	</h:body>
+</ui:composition>
